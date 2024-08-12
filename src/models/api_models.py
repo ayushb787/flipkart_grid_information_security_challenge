@@ -44,3 +44,13 @@ class SecurityTestResult(Base):
     injection = Column(JSON)
     asset_management = Column(JSON)
     logging_monitoring = Column(JSON)
+
+class SecurityIssue(Base):
+    __tablename__ = 'security_issues'
+
+    id = Column(Integer, primary_key=True, index=True)
+    endpoint = Column(String, index=True)
+    issue_description = Column(String)
+    severity = Column(String)
+    status = Column(String, default="open")
+    detected_time = Column(DateTime(timezone=True), server_default=func.now())
