@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from src.db.alchemy import Base
 from datetime import datetime
 from sqlalchemy.sql import func
+
 class APIInventory(Base):
     __tablename__ = "api_inventories"
 
@@ -11,27 +12,14 @@ class APIInventory(Base):
     url = Column(String, index=True)
     last_scanned = Column(DateTime, default=datetime.utcnow)
 
-    # Relationship to SecurityLog
-    logs = relationship("SecurityLog", back_populates="api_inventory")
-
-class SecurityLog(Base):
-    __tablename__ = "security_logs"
-
-    id = Column(Integer, primary_key=True, index=True)
-    api_id = Column(Integer, ForeignKey('api_inventories.id'))
-    issue = Column(String, index=True)
-    severity = Column(String, index=True)
-    detected_on = Column(DateTime, default=datetime.utcnow)
-
-    # Relationship back to APIInventory
-    api_inventory = relationship("APIInventory", back_populates="logs")
-
-
+    # Relationship to SecurityTestResult
+    security_test_results = relationship("SecurityTestResult", back_populates="api_inventory")
 
 class SecurityTestResult(Base):
     __tablename__ = 'security_test_results'
 
     id = Column(Integer, primary_key=True, index=True)
+    api_inventory_id = Column(Integer, ForeignKey('api_inventories.id'))
     endpoint = Column(String, index=True)
     scan_timestamp = Column(DateTime(timezone=True), server_default=func.now())
     broken_auth = Column(JSON)
@@ -45,10 +33,14 @@ class SecurityTestResult(Base):
     asset_management = Column(JSON)
     logging_monitoring = Column(JSON)
 
+    # Relationship to APIInventory
+    api_inventory = relationship("APIInventory", back_populates="security_test_results")
+
 class SecurityIssue(Base):
     __tablename__ = 'security_issues'
 
     id = Column(Integer, primary_key=True, index=True)
+    api_inventory_id = Column(Integer, ForeignKey('api_inventories.id'))
     endpoint = Column(String, index=True)
     issue_description = Column(String)
     severity = Column(String)

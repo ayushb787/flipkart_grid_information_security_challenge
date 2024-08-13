@@ -1,12 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from .. import get_raw_db, get_db
-
-from src.crud.api_crud import create_api, get_apis, create_log, get_logs
-from src.schemas.api_schemas import APIInventoryCreate, APIInventory, SecurityLogCreate, SecurityLog
+from fastapi import APIRouter, HTTPException
 from ...db.alchemy import SessionLocal
 from ...models.api_models import SecurityIssue
-from ...utils.owasp_scanner import run_all_security_tests
 
 router = APIRouter()
 

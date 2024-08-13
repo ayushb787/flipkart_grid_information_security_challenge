@@ -1,6 +1,3 @@
-from sqlalchemy.orm import Session
-from src.crud.api_crud import create_api, get_apis
-from src.schemas.api_schemas import APIInventoryCreate
 import time
 import requests
 

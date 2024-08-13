@@ -1,29 +1,14 @@
 from fastapi import HTTPException
 from datetime import datetime
 
-from src.db.alchemy import SessionLocal
+from src.db.alchemy import SessionLocal, AsyncSessionLocal
 from src.models.api_models import SecurityTestResult, SecurityIssue
 from src.owasp_tests.top_10_owasp import check_insufficient_logging_monitoring, check_improper_assets_management, check_injection, \
     check_security_misconfiguration, check_mass_assignment, check_broken_function_level_authorization, \
     check_rate_limiting, check_excessive_data_exposure, check_broken_object_level_authorization, \
     check_broken_authentication
 
-
-def log_results(results, endpoint):
-    """
-    Return the results of the security owasp_tests as a JSON object.
-    """
-    results_with_metadata = {
-        "endpoint": endpoint,
-        "scan_timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-        "results": results
-    }
-
-    return results_with_metadata
-
-
-
-async def run_all_security_tests(endpoint: str):
+async def run_all_security_tests(api_inventory_id: int, endpoint: str):
     """
     Run all OWASP Top 10 security tests and store results in the database.
     """
@@ -41,6 +26,7 @@ async def run_all_security_tests(endpoint: str):
         logging_monitoring_results = await check_insufficient_logging_monitoring(endpoint)
 
         test_results = SecurityTestResult(
+            api_inventory_id=api_inventory_id,
             endpoint=endpoint,
             broken_auth=auth_results,
             bola=bola_results,
@@ -56,7 +42,6 @@ async def run_all_security_tests(endpoint: str):
 
         session.add(test_results)
 
-        # Log issues based on results
         issues = []
 
         def handle_results(results, description, severity):
@@ -79,18 +64,21 @@ async def run_all_security_tests(endpoint: str):
         handle_results(asset_management_results, "Improper Asset Management", "Medium")
         handle_results(logging_monitoring_results, "Insufficient Logging & Monitoring", "Medium")
 
-        # Create and store SecurityIssue entries
         for issue_description, severity in issues:
             security_issue = SecurityIssue(
+                api_inventory_id=api_inventory_id,
                 endpoint=endpoint,
                 issue_description=issue_description,
                 severity=severity,
-                status="open"  # Set status to "open"
+                status="open"
             )
             session.add(security_issue)
 
         session.commit()
-
+        # return {
+        #     "test_results": test_results,
+        #     "issues": issues,
+        # }
         return {"message": "Security test results and issues stored in database successfully."}
 
     except Exception as e:
@@ -98,4 +86,3 @@ async def run_all_security_tests(endpoint: str):
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         session.close()
-
