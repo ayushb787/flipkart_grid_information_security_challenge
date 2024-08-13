@@ -1,11 +1,13 @@
-from fastapi import APIRouter, Depends
+from typing import List
+
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from .. import get_raw_db, get_db
 
-from src.crud.api_crud import create_api, get_apis
+from src.crud.api_crud import create_api, get_apis, get_unique_apis
 from src.schemas.api_schemas import APIInventoryCreate, APIInventory
+from ...db.alchemy import SessionLocal
 from ...utils.owasp_scanner import run_all_security_tests
-
 router = APIRouter()
 
 
@@ -23,3 +25,9 @@ async def discover_api(api: APIInventoryCreate, db: Session = Depends(get_db)):
             description="Retrieve a list of all registered APIs in the inventory with pagination support.")
 def read_apis(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return get_apis(db=db, skip=skip, limit=limit)
+
+
+
+@router.get("/unique-apis")
+def read_unique_apis(db: Session = Depends(get_db)):
+    return get_unique_apis(db)

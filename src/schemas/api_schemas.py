@@ -81,3 +81,17 @@ class APIInventory(APIInventoryBase):
 
     class Config:
         orm_mode = True
+
+class SecurityIssueBase(BaseModel):
+    endpoint: str
+    issue_description: str
+    severity: str
+    status: str
+    detected_time: datetime
+
+class SecurityIssue(SecurityIssueBase):
+    id: int
+    api_inventory_id: int
+
+    class Config:
+        from_attributes = True  # For Pydantic v2
