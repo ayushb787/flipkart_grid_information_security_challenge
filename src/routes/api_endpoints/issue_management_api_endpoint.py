@@ -1,14 +1,15 @@
 from typing import List
-from fastapi import APIRouter, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, HTTPException, Depends
 from src.schemas.api_schemas import SecurityIssue as SecurityIssueSchema
 from ...db.alchemy import SessionLocal
 from src.models.api_models import SecurityIssue
+from src.authorization.security import get_current_user
+
 router = APIRouter()
 
 
 @router.put("/issues/{api_inventory_id}/status")
-async def update_issue_status(api_inventory_id: int, status: str):
+async def update_issue_status(api_inventory_id: int, status: str, token: str = Depends(get_current_user)):
     """
     Update the status of a security issue by its id.
     """
@@ -32,7 +33,7 @@ async def update_issue_status(api_inventory_id: int, status: str):
 
 
 @router.get("/issues/{api_inventory_id}", response_model=List[SecurityIssueSchema])
-async def get_issues_by_inventory_id(api_inventory_id: int):
+async def get_issues_by_inventory_id(api_inventory_id: int, token: str = Depends(get_current_user)):
     """
     Get all security issues related to a given API inventory ID.
     """

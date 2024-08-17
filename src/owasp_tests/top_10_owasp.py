@@ -12,7 +12,10 @@ async def check_broken_object_level_authorization(endpoint: str, object_id: str,
     if response.status_code == 403 or response.status_code == 401:
         return {"vulnerable": False, "status_code": response.status_code}
     else:
-        return {"vulnerable": True, "status_code": response.status_code, "response": response.text}
+        words = response.text.split()
+        words = words[:100]
+        limited_response_text = ' '.join(words)
+        return {"vulnerable": True, "status_code": response.status_code, "response": limited_response_text}
 
 
 async def check_broken_authentication(endpoint: str, weak_password: str, username: str):
@@ -23,7 +26,10 @@ async def check_broken_authentication(endpoint: str, weak_password: str, usernam
     response = requests.post(endpoint, data=data)
 
     if response.status_code == 200:
-        return {"vulnerable": True, "response": response.text}
+        words = response.text.split()
+        words = words[:100]
+        limited_response_text = ' '.join(words)
+        return {"vulnerable": True, "response": limited_response_text}
     else:
         return {"vulnerable": False, "status_code": response.status_code}
 
@@ -35,8 +41,10 @@ async def check_excessive_data_exposure(endpoint: str):
 
     sensitive_keywords = ["password", "credit_card", "ssn"]
     exposure = any(keyword in response.text for keyword in sensitive_keywords)
-
-    return {"vulnerable": exposure, "response": response.text if exposure else None}
+    words = response.text.split()
+    words = words[:100]
+    limited_response_text = ' '.join(words)
+    return {"vulnerable": exposure, "response": limited_response_text if exposure else None}
 
 
 async def check_rate_limiting(endpoint: str, rate_limit: int):
@@ -49,10 +57,13 @@ async def check_rate_limiting(endpoint: str, rate_limit: int):
         response = requests.get(endpoint)
         end_time = time.time()
         response_time = end_time - start_time
+        words = response.text.split()
+        words = words[:100]
+        limited_response_text = ' '.join(words)
         responses.append({
             "status_code": response.status_code,
             "response_time": response_time,
-            "response_body": response.text
+            "response_body": limited_response_text
         })
         time.sleep(0.1)  # Small delay between requests
 
@@ -75,7 +86,10 @@ async def check_broken_function_level_authorization(endpoint: str, unauthorized_
     if response.status_code == 403 or response.status_code == 401:
         return {"vulnerable": False, "status_code": response.status_code}
     else:
-        return {"vulnerable": True, "status_code": response.status_code, "response": response.text}
+        words = response.text.split()
+        words = words[:100]
+        limited_response_text = ' '.join(words)
+        return {"vulnerable": True, "status_code": response.status_code, "response": limited_response_text}
 
 
 async def check_mass_assignment(endpoint: str):
@@ -86,7 +100,10 @@ async def check_mass_assignment(endpoint: str):
     response = requests.post(endpoint, json=data)
 
     if "role" in response.text or "is_admin" in response.text:
-        return {"vulnerable": True, "response": response.text}
+        words = response.text.split()
+        words = words[:100]
+        limited_response_text = ' '.join(words)
+        return {"vulnerable": True, "response": limited_response_text}
     else:
         return {"vulnerable": False, "status_code": response.status_code}
 
@@ -115,10 +132,13 @@ async def check_injection(endpoint: str):
 
     for payload in test_payloads:
         response = requests.post(endpoint, data={"input": payload})
+        words = response.text.split()
+        words = words[:100]
+        limited_response_text = ' '.join(words)
         if "syntax error" in response.text or "unexpected" in response.text:
-            results.append({"payload": payload, "vulnerable": True, "response": response.text})
+            results.append({"payload": payload, "vulnerable": True, "response": limited_response_text})
         else:
-            results.append({"payload": payload, "vulnerable": False, "response": response.text})
+            results.append({"payload": payload, "vulnerable": False, "response": limited_response_text})
 
     return results
 
@@ -148,8 +168,9 @@ async def check_insufficient_logging_monitoring(endpoint: str):
     """
     suspicious_payload = "<script>alert('xss')</script>"
     response = requests.post(endpoint, data={"input": suspicious_payload})
-
-    # Check if the application responded with an alert or similar action
+    words = response.text.split()
+    words = words[:100]
+    limited_response_text = ' '.join(words)
     alert_detected = "alert" in response.text
 
-    return {"vulnerable": alert_detected, "response": response.text}
+    return {"vulnerable": alert_detected, "response":limited_response_text}

@@ -10,9 +10,10 @@ def get_api(db: Session, api_id: int):
     return db.query(APIInventory).filter(APIInventory.id == api_id).first()
 
 
-def get_apis(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(APIInventory).options(joinedload(APIInventory.security_test_results)).offset(skip).limit(
+def get_apis(db: Session, limit: int = 100):
+    return db.query(APIInventory).options(joinedload(APIInventory.security_test_results)).limit(
         limit).all()
+
 
 def get_unique_apis(db: Session):
     """
@@ -29,8 +30,8 @@ def get_unique_apis(db: Session):
         for api in unique_apis
     ]
 
+
 async def create_api(db: Session, api: APIInventoryCreate):
-    # Check if the API already exists with the same name and URL
     existing_api = db.query(APIInventory).filter(
         APIInventory.name == api.name,
         APIInventory.url == api.url
@@ -44,7 +45,6 @@ async def create_api(db: Session, api: APIInventoryCreate):
     db.commit()
     db.refresh(db_api)
 
-    # Run all security tests for the created API
     await run_all_security_tests(api_inventory_id=db_api.id, endpoint=db_api.url)
 
     return db_api

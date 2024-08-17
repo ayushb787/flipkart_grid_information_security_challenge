@@ -3,6 +3,7 @@ from ...utils.owasp_scanner import run_all_security_tests
 
 router = APIRouter()
 
+
 @router.get("/run_security_tests")
 async def run_security_tests(endpoint: str):
     """

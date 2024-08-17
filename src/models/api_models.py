@@ -1,8 +1,9 @@
-from sqlalchemy import Column, Integer, String, JSON, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, JSON, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from src.db.alchemy import Base
 from datetime import datetime
 from sqlalchemy.sql import func
+
 
 class APIInventory(Base):
     __tablename__ = "api_inventories"
@@ -14,6 +15,7 @@ class APIInventory(Base):
 
     # Relationship to SecurityTestResult
     security_test_results = relationship("SecurityTestResult", back_populates="api_inventory")
+
 
 class SecurityTestResult(Base):
     __tablename__ = 'security_test_results'
@@ -36,6 +38,7 @@ class SecurityTestResult(Base):
     # Relationship to APIInventory
     api_inventory = relationship("APIInventory", back_populates="security_test_results")
 
+
 class SecurityIssue(Base):
     __tablename__ = 'security_issues'
 
@@ -46,3 +49,12 @@ class SecurityIssue(Base):
     severity = Column(String)
     status = Column(String, default="open")
     detected_time = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+    is_active = Column(Boolean, default=True)
