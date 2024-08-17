@@ -1,7 +1,7 @@
 from sqlalchemy import text, distinct
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session, joinedload, selectinload
-from src.models.api_models import APIInventory
+from src.models.api_models import APIInventory, SecurityIssue, SecurityTestResult
 from src.schemas.api_schemas import APIInventoryCreate
 from src.utils.owasp_scanner import run_all_security_tests
 
@@ -48,3 +48,31 @@ async def create_api(db: Session, api: APIInventoryCreate):
     await run_all_security_tests(api_inventory_id=db_api.id, endpoint=db_api.url)
 
     return db_api
+
+
+def count_unique_apis(db: Session):
+    return db.query(APIInventory).distinct(APIInventory.id).count()
+
+
+def count_open_issues(db: Session):
+    return db.query(SecurityIssue).filter(SecurityIssue.status == 'open').count()
+
+
+def count_closed_issues(db: Session):
+    return db.query(SecurityIssue).filter(SecurityIssue.status == 'closed').count()
+
+
+def count_total_apis(db: Session):
+    return db.query(SecurityTestResult).count()
+
+
+def count_high_severity_issues(db: Session):
+    return db.query(SecurityIssue).filter(SecurityIssue.severity == 'High').count()
+
+
+def count_medium_severity_issues(db: Session):
+    return db.query(SecurityIssue).filter(SecurityIssue.severity == 'Medium').count()
+
+
+def count_low_severity_issues(db: Session):
+    return db.query(SecurityIssue).filter(SecurityIssue.severity == 'Low').count()
