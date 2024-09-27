@@ -1,3 +1,7 @@
+"""
+Author: Ayush Bhandari
+Email: ayushbhandariofficial@gmail.com
+"""
 from pydantic import BaseModel
 from datetime import datetime
 from typing import List, Optional

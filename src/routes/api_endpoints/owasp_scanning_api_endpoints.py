@@ -1,3 +1,7 @@
+"""
+Author: Ayush Bhandari
+Email: ayushbhandariofficial@gmail.com
+"""
 from fastapi import APIRouter
 from ...utils.owasp_scanner import run_all_security_tests
 

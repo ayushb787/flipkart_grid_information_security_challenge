@@ -1,3 +1,7 @@
+"""
+Author: Ayush Bhandari
+Email: ayushbhandariofficial@gmail.com
+"""
 from typing import List
 from fastapi import APIRouter, HTTPException, Depends
 from src.schemas.api_schemas import SecurityIssue as SecurityIssueSchema

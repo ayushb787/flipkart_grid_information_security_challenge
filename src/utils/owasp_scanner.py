@@ -1,3 +1,7 @@
+"""
+Author: Ayush Bhandari
+Email: ayushbhandariofficial@gmail.com
+"""
 from fastapi import HTTPException
 from datetime import datetime
 
@@ -16,13 +20,13 @@ async def run_all_security_tests(api_inventory_id: int, endpoint: str):
     """
     session = SessionLocal()
     try:
-        auth_results = await check_broken_authentication(endpoint, weak_password="123456", username="test_user")
-        bola_results = await check_broken_object_level_authorization(endpoint, object_id="1",
-                                                                     unauthorized_user_token="unauth_token")
+        auth_results = await check_broken_authentication(endpoint,                       weak_password="123456", username="test_user")
+        bola_results = await check_broken_object_level_authorization(endpoint,          object_id="1",
+                                                                                            unauthorized_user_token="unauth_token")
         data_exposure_results = await check_excessive_data_exposure(endpoint)
-        rate_limit_results = await check_rate_limiting(endpoint, rate_limit=10)
+        rate_limit_results = await check_rate_limiting(endpoint,                        rate_limit=10)
         function_auth_results = await check_broken_function_level_authorization(endpoint,
-                                                                                unauthorized_user_token="unauth_token")
+                                                                                            unauthorized_user_token="unauth_token")
         mass_assignment_results = await check_mass_assignment(endpoint)
         security_misconfig_results = await check_security_misconfiguration(endpoint)
         injection_results = await check_injection(endpoint)

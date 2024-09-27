@@ -1,3 +1,7 @@
+"""
+Author: Ayush Bhandari
+Email: ayushbhandariofficial@gmail.com
+"""
 import os
 from datetime import datetime, timedelta
 from typing import Optional
